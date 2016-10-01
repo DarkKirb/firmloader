@@ -1,6 +1,6 @@
 unreal_init:
     xor ax, ax
-    mov es, ax
+    mov ds, ax
     cli
     push ds
     lgdt [unrealgdtinfo]
@@ -16,7 +16,7 @@ unreal_init:
     sti
     mov bx, 0x0F01
     mov eax, 0xb8000
-    mov word [es:eax], bx
+    mov word [ds:eax], bx
     retn
 
 unrealgdtinfo:

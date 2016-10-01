@@ -1,3 +1,4 @@
+org 0x10000
 mov ax, 0x1000
 mov ds, ax
 mov es, ax
@@ -41,11 +42,12 @@ start:
 a20_done:
     mov si, a20_init
     call putstr
-    call unreal_init
+;;    call unreal_init
     mov si, unreal_initmsg
     call putstr
     ;;Load BPB
     call getBootPartStart
+    cli
     hlt
     mov ax, 0x2000
     mov es, ax
@@ -61,7 +63,7 @@ a20_done:
     call unreal_init
     mov bx, 0x0F02
     mov eax, 0xB8000
-    mov word [es:eax], bx
+    mov word [ds:eax], bx
     cli
     hlt
 putstr:

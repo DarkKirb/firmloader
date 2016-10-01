@@ -6,7 +6,7 @@ start:
     mov ss, ax
     mov sp, 0
     sti
- 
+
     mov ax, 0x0000
     mov es, ax
     mov ds, ax
@@ -17,6 +17,7 @@ start:
     mov ax, 0x1000
     mov es, ax
     mov ds, ax
+    call unreal_init
     jmp 0x1000:0x0000
 
 putstr:
@@ -74,7 +75,7 @@ error:
     cli
     hlt
     jmp $
-
+%include "unreal.asm"
 ;; RODATA
 reseterror_msg db "Drive couldn't be reset. Continuing.",13,10,0
 error_msg db "Couldn't load data from disk. Halting.",13,10,0
