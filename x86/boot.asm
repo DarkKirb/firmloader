@@ -30,7 +30,6 @@ putstr:
     jmp putstr
 putstrd:
     retn
-
 load:
     mov cx, 4
 resetloop:
@@ -52,9 +51,9 @@ loadloop:
     mov ax, 0x1000
     mov es, ax
     mov bx, 0
-    ;Read 8 sectors
+    ;Read 62 sectors
     mov ah, 2
-    mov al, 8
+    mov al, 62
     mov cx, 2
     mov dh, 0
     mov dl, [bootdrv]

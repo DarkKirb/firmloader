@@ -42,28 +42,26 @@ start:
 a20_done:
     mov si, a20_init
     call putstr
-;;    call unreal_init
     mov si, unreal_initmsg
     call putstr
     ;;Load BPB
     call getBootPartStart
-    cli
-    hlt
-    mov ax, 0x2000
-    mov es, ax
-    mov bx, 0
-    mov dl, [bootdrv]
-    mov ah, 2
-    mov al, 5
-    int 0x13
+    mov bx, 0x2000
+    mov es, bx
+    mov bx, 0x0000
+    call readSector
     xor ax, ax
     mov es, ax
     mov si, bpb_load
     call putstr
-    call unreal_init
     mov bx, 0x0F02
     mov eax, 0xB8000
     mov word [ds:eax], bx
+    mov eax, 0x20000
+    call FAT_init
+    mov si, fat_inited
+    call putstr
+    call ListRootDir
     cli
     hlt
 putstr:
@@ -76,16 +74,49 @@ putstr:
     jmp putstr
 putstrd:
     retn
+pascalput:
+    push ax
+    push bx
+.loop:
+    push eax
+    mov al, [es:eax]
+    mov ah, 0x0E
+    mov bx, 0x000F
+    int 0x10
+    pop eax
+    inc eax
+    loop .loop
+    pop bx
+    pop ax
+    retn
 
 %include "a20.asm"
 %include "unreal.asm"
+%include "fat.asm"
 ;returns head no in dh, and cylinder and sector number in cx.
 getBootPartStart:
-    mov eax, 0x7C00+0x01BE+0x1
-    mov dh, [es:eax]
-    inc eax
-    mov cx, [es:eax]
+    mov eax, 0x7DC6
+    mov ebx, 63
+    mov [partlba], ebx
+    mov eax, ebx
     ret
+;Reads one sector from LBA eax and stores it at es:bx
+readSector:
+    mov cx, 16
+    mov [dap+DAP.size], cx
+    xor cx, cx
+    mov [dap+DAP.unused], cx
+    mov cx, 1
+    mov [dap+DAP.readsec], cx
+    mov [dap+DAP.offset], bx
+    mov cx, es
+    mov [dap+DAP.segment], cx
+    mov [dap+DAP.lba], eax
+    mov si, dap
+    mov dl,[bootdrv]
+    mov ah, 0x42
+    int 0x13
+    retn
 
 ;;DATA
 rmode_es dw 0x1000
@@ -97,6 +128,19 @@ a20_err db "A20 didn't quite work. Halting.",13,10,0
 a20_init db "A20 initialized.", 13, 10, 0
 unreal_initmsg db "Unreal mode initialized.",13,10,0
 bpb_load db "Loaded the BIOS parameter block from disk.",13,10,0
+fat_inited db "Initialized FAT16 driver.",13,10,0
 ;;BSS
 bootdrv db 0
-times 8*512-($-$$) hlt
+partlba dd 0, 0
+
+struc DAP
+    .size resb 1
+    .unused resb 1
+    .readsec resw 1
+    .offset resw 1
+    .segment resw 1
+    .lba resd 2
+endstruc
+dap:
+    db 0x10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+times 62*512-($-$$) hlt
