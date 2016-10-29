@@ -1,9 +1,16 @@
 AS = nasm
 ASFLAGS = -f bin
+CC = i686-mtgos-gcc
+CFLAGS = -nostdinc -fno-builtin -I. -w -Werror -fno-unit-at-a-time -fno-toplevel-reorder
+LD = i686-mtgos-ld
+LDFLAGS = -Ttext=0x0000 -e 0x0 --oformat binary
 all: stage1.bin stage2.bin
 
 stage1.bin: boot.asm
 	$(AS) $(ASFLAGS) -o $@ $^
 
-stage2.bin: stage2.asm
-	$(AS) $(ASFLAGS) -o $@ $^
+stage2.bin: main.o kbc.o
+	$(LD) $(LDFLAGS) -o $@ $^
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c -o $@ $^

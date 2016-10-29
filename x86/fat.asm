@@ -128,9 +128,62 @@ ListRootDir:
     mov si, ListingEnd
     call putstr
     retn
+;Prints file X in root directory (String pointer is eax
+PrintRootDirFile:
+    mov ebx, [firstdatasect]
+    sub ebx, [rootdir_sect]
+    add ebx, 63
+    push eax
+    mov eax, ebx
+    mov bx, 0x3000
+    mov es, bx
+    mov bx, 0x0000
+    call readSector
+    xor bx, bx
+    mov es, bx
+    mov eax, 0x30000
+    pop ebx
+    mov cx, 16
+.loop:
+    push eax
+    push ebx
+    call filenamecmp
+    jnc .found
+    pop ebx
+    pop eax
+    loop .loop
+    mov cx, 11
+    mov ebx, eax
+    call pascalput
+    mov si, FileNotFound
+    call putstr
+    cli
+    hlt
+; Pointer to file name in eax and ebx. compares 11 characters. Carry flag is set when they don't match.
+filenamecmp:
+    push ecx
+    push edx
+    mov ecx, 11
+.loop:
+    mov dl, [ds:eax]
+    mov dh, [ds:ebx]
+    cmp dl, dh
+    jnz .cmperror
+    inc eax
+    inc ebx
+    loop .loop
+    pop edx
+    pop ecx
+    retn
+.cmperror:
+    pop edx
+    pop ecx
+    stc
+    retn
 ;;RODATA
 WrongFAT_msg db "FIRMloader currently only supports loading from FAT 16!",13,10,0
 ListingEnd db "Listing done.",13,10,0
+FileNotFound db " Could not be found.",13,10,0
 newline db 13,10,0
 ;;BSS
 bpbptr dd 0
