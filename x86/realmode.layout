@@ -1,3 +1,0 @@
-00000-004FF - Reserved for BIOS
-00500-00FFF - Stack (Segment 0x50)
-01000-01FFF - 
