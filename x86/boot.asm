@@ -51,9 +51,9 @@ loadloop:
     mov ax, 0x1000
     mov es, ax
     mov bx, 0
-    ;Read 62 sectors
+    ;Read 64 sectors
     mov ah, 2
-    mov al, 62
+    mov al, 64
     mov cx, 2
     mov dh, 0
     mov dl, [bootdrv]
