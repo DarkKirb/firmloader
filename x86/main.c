@@ -3,30 +3,31 @@
 #include <video.h>
 #include <fatfs/ff.h>
 asm(".code16gcc");
+
 asm("mov $0x10000, %eax");
 asm("mov %dx, (%eax)");
 void main() {
-    puts(_("FIRMloader initializes...\n"));
+    puts("FIRMloader initializes...\n");
     doa20();
-    puts(_("A20 gate enabled\n"));
+    puts("A20 gate enabled\n");
     int no_parts=initDisk();
-    puts(_("Found "));
+    puts("Found ");
     puti(no_parts);
-    puts(_(" Drives\n"));
-    puts(_("Initing fatfs"));
+    puts(" Drives\n");
+    puts("Initing fatfs");
     FATFS fs;
     FIL payload;
-    puti(f_mount(&fs, _("0:"), 1));
-    puts(_("Opening file"));
+    puti(f_mount(&fs, "0:", 1));
+    puts("Opening file");
     unsigned int retval;
-    if((retval=f_open(&payload, _("BOOTMSG.TXT"), FA_READ | FA_OPEN_EXISTING)) == FR_OK) {
-        puts(_("Opened file"));
+    if((retval=f_open(&payload, "bootmsg.txt", FA_READ | FA_OPEN_EXISTING)) == FR_OK) {
+        puts("Opened file");
         char buf[513];
         unsigned int br;
         f_read(&payload, (void*)&buf, 20, &br);
         puts(&buf);
     } else {
-        puts(_("Fail"));
+        puts("Fail");
         puti(retval);
     }
     for(;;);
@@ -50,7 +51,7 @@ void puts(const char *val) {
 }
 void puti(unsigned int i) {
     char buf[65];
-    const char* digits = _("0123456789ABCDEF");
+    const char* digits = "0123456789ABCDEF";
     char* p;
     p=buf+64;
     *p='\0';

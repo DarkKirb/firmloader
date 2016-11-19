@@ -11,14 +11,13 @@ start:
     mov es, ax
     mov ds, ax
     mov [bootdrv], dl
-
     call load
     mov dl, [bootdrv]
     mov ax, 0x1000
     mov es, ax
     mov ds, ax
     call unreal_init
-    jmp 0x1000:0x0000
+    jmp 0x0000:0x0500
 
 putstr:
     lodsb
@@ -48,12 +47,12 @@ loadloop:
     dec cx
     jz error
     push cx
-    mov ax, 0x1000
+    mov ax, 0x50
     mov es, ax
     mov bx, 0
     ;Read 64 sectors
     mov ah, 2
-    mov al, 64
+    mov al, 59
     mov cx, 2
     mov dh, 0
     mov dl, [bootdrv]
@@ -78,7 +77,7 @@ error:
 ;; RODATA
 reseterror_msg db "Drive couldn't be reset. Continuing.",13,10,0
 error_msg db "Couldn't load data from disk. Halting.",13,10,0
-loadmsg db "Now loading FIRMloader...",13,10,0
+loadmsg db "Loading FIRMloader",13,10,0
 ;; BSS
 bootdrv db 0
 times 510-($-$$) hlt
