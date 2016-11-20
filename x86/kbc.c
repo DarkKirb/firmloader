@@ -1,6 +1,5 @@
 #include <kbc.h>
 #include <io.h>
-asm(".code16gcc");
 void doa20() {
     if(checka20())
         return;

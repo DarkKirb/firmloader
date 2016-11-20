@@ -2,7 +2,6 @@
 #include <disk.h>
 #include <video.h>
 #include <fatfs/ff.h>
-asm(".code16gcc");
 
 asm("mov $0x10000, %eax");
 asm("mov %dx, (%eax)");
@@ -32,10 +31,9 @@ void main() {
     }
     for(;;);
 }
+void _putc(char x);
 void putchar(char val) {
-    asm("movb %0, %%al\n"  
-        "movb $0x0E, %%ah\n" 
-        "int $0x10\n" :  :"r"(val));
+    _putc(x);
 }
 void puts(const char *val) {
     int i=0;

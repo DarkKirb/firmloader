@@ -1,6 +1,5 @@
 #include <disk.h>
 #include <video.h>
-asm(".code16gcc");
 #define bootDisk (*((uint8_t*)0x10000))
 #define bootsect ((uint8_t*)0x20000)
 #define mbr ((partlist*)0x20000)
@@ -43,6 +42,7 @@ int initDisk() {
     }
     return x;
 }
+void _readSector(dap* addr);
 void readSector(uint16_t tgt_seg, uint16_t tgt_off, uint64_t LBA, uint16_t size) {
     puts(_("Reading 0x"));
     puti(size);
@@ -63,7 +63,7 @@ void readSector(uint16_t tgt_seg, uint16_t tgt_off, uint64_t LBA, uint16_t size)
     packet->off=tgt_off;
     packet->seg=tgt_seg;
     packet->lba=LBA;
-    asm("int $0x13" : : "a"(0x4200), "d"(bootDisk), "S"(0x5000));
+    _readSector(packet);
 }
 uint32_t getFirstSector(int partid) {
     return mbr->entr[partid].lba_start;
