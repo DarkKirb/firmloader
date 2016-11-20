@@ -17,7 +17,7 @@ start:
     mov es, ax
     mov ds, ax
     call unreal_init
-    jmp 0x0000:0x0500
+    jmp 0xA00:0x0000
 
 putstr:
     lodsb
@@ -47,9 +47,9 @@ loadloop:
     dec cx
     jz error
     push cx
-    mov ax, 0x50
+    mov ax, 0x0A00
     mov es, ax
-    mov bx, 0
+    mov bx, 0x0
     ;Read 64 sectors
     mov ah, 2
     mov al, 59

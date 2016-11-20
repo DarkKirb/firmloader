@@ -33,7 +33,7 @@ void main() {
 }
 void _putc(char x);
 void putchar(char val) {
-    _putc(x);
+    _putc(val);
 }
 void puts(const char *val) {
     int i=0;

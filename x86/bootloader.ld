@@ -1,11 +1,13 @@
 SECTIONS {
-    . = 0x0500;
-    .text : {
-        *(.text)
-    }
+    . = 0x0;
     .data : {
+        *(otext)
+        *(odata)
+    }
+    . = 0xA200;
+    .text :  {
+        *(.text)
         *(.data)
         *(.rodata)
-        *(.bss)
     }
 }

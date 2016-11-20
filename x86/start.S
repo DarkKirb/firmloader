@@ -1,16 +1,46 @@
 .code16
-.section .text
+.section otext
 //First part: Initing protected mode
 .global _start
 _start:
-    mov $drv, %eax
+    cli
+    mov $drv+0xA000, %eax
     mov %dl, (%eax)
-    lgdt gdtr
+    lgdt gdtr+0xA000
     mov %cr0, %eax
     or $0x1, %al
     mov %eax, %cr0
     ljmp $0x8, $_start2
+_readSector2:
+    mov 12(%esp), %eax
+    mov %ax, %si
+    and $0xF, %si
+    shr $0x4, %eax
+    mov %ax, %ds
+    mov drv, %dl
+    xor %ax, %ax
+    mov $0x42, %ah
+    int $0x13
+    mov %cr0, %eax
+    or $0x1, %al
+    mov %eax, %cr0
+    ljmp $0x08, $_readSector3
+_putc2:
+    mov 4(%esp), %eax
+    mov $0x0E, %ah
+    int $0x10
+    mov %cr0, %eax
+    or $1, %al
+    mov %eax, %cr0
+    ljmp $0x08, $_putc3
 .code32
+_starth:
+    jmp _start2
+_readSectorh:
+    jmp _readSector3
+_putch:
+    jmp _putc3
+.section .text
 _start2:
     mov $0x10, %eax
     mov %eax, %ds
@@ -27,49 +57,23 @@ _readSector:
     and $0xFE, %al
     mov %eax, %cr0
     ljmp $0x1000, $_readSector2-0x10000
-.code16
-_readSector2:
-    mov 12(%esp), %eax
-    mov %ax, %si
-    and $0xF, %si
-    shr $0x4, %eax
-    mov %ax, %ds
-    mov drv, %dl
-    xor %ax, %ax
-    mov $0x42, %ah
-    int $0x13
-    mov %cr0, %eax
-    or $0x1, %al
-    mov %eax, %cr0
-    ljmp $0x08, $_readSector3
-.code32
 _readSector3:
     mov $0x10, %eax
     mov %eax, %ds
     pop %esi
     pop %edx
-    retn
+    ret
 .global _putc
 _putc:
     mov %cr0, %eax
     and $0xFE, %al
     mov %eax, %cr0
     ljmp $0x1000,$_putc2-0x10000
-.code16
-_putc2:
-    mov 4(%esp), %eax
-    mov $0x0E, %ah
-    int $0x10
-    mov %cr0, %eax
-    or $1, %al
-    mov %eax, %cr0
-    ljmp $0x08, $_putc3
-.code32
 _putc3:
     mov $0x10, %eax
     mov %eax, %ds
-    retn
-.section .data
+    ret
+.section odata
 drv:
 .space 1
 gdt:
@@ -98,7 +102,8 @@ gdt:
 
 gdtr:
   .word 4 * 8
-  .int gdt
+  .int gdt+0xA000
+.section .data
 .section .bss
 .space 4096
 _stack:
